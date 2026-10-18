@@ -113,6 +113,10 @@
     font-size: 0.95rem;
   }
   .speichern:hover, .speichern:focus-visible { background-color: #dce7e1; }
+  .wahl { display: block; margin-top: 0.35rem; font-size: 0.78rem; }
+  .wahl[hidden] { display: none; }
+  .daten .wahl a, footer .wahl a { display: inline; color: var(--gruen); }
+  footer .wahl { margin-top: 0.6rem; }
   footer {
     margin-top: 2.6rem;
     font-size: 0.75rem;
@@ -142,6 +146,7 @@
   <p class="versal praxis">Psychotherapeutikum</p>
   <div class="daten">
     <a class="route" href="https://www.google.com/maps/dir/?api=1&amp;destination=Gr%C3%BCneburgweg%2012%2C%2060322%20Frankfurt%20am%20Main"><span>Grüneburgweg 12 / 3. OG</span><br><span>60322 Frankfurt am Main</span></a>
+    <span class="wahl" hidden><a href="https://maps.apple.com/?daddr=Gr%C3%BCneburgweg%2012%2C%2060322%20Frankfurt%20am%20Main">Apple Karten</a> &nbsp;·&nbsp; <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Gr%C3%BCneburgweg%2012%2C%2060322%20Frankfurt%20am%20Main">Google Maps</a></span>
     <a class="abstand" href="tel:+4969247574523">069 247574523</a>
     <a href="mailto:Kontakt@psychotherapeutikum.net">Kontakt@psychotherapeutikum.net</a>
   </div>
@@ -153,7 +158,17 @@
     <a href="https://psychotherapeutikum.net">Website</a> &nbsp;·&nbsp;
     <a href="https://psychotherapeutikum.net/impressum.html">Impressum</a> &nbsp;·&nbsp;
     <a href="https://psychotherapeutikum.net/datenschutz.html">Datenschutz</a>
+    <span class="wahl unten" hidden><a href="https://maps.apple.com/?daddr=Gr%C3%BCneburgweg%2012%2C%2060322%20Frankfurt%20am%20Main">Apple Karten</a> &nbsp;·&nbsp; <a href="https://www.google.com/maps/dir/?api=1&amp;destination=Gr%C3%BCneburgweg%2012%2C%2060322%20Frankfurt%20am%20Main">Google Maps</a></span>
   </footer>
 </main>
+<script>
+  document.querySelectorAll('a.route').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var wahl = link.closest('footer') ? document.querySelector('footer .wahl') : document.querySelector('.daten .wahl');
+      wahl.hidden = !wahl.hidden;
+    });
+  });
+</script>
 </body>
 </html>

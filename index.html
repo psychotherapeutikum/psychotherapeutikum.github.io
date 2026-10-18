@@ -155,6 +155,7 @@
 
   <footer>
     <a class="route" href="#" role="button">Route</a> &nbsp;·&nbsp;
+    <a class="teilen" href="mailto:?subject=Psychotherapeutikum%20Landeberg&amp;body=https%3A%2F%2Fpsychotherapeutikum.github.io">Weiterleiten</a> &nbsp;·&nbsp;
     <a href="https://psychotherapeutikum.net">Website</a> &nbsp;·&nbsp;
     <a href="https://psychotherapeutikum.net/impressum.html">Impressum</a> &nbsp;·&nbsp;
     <a href="https://psychotherapeutikum.net/datenschutz.html">Datenschutz</a>
@@ -167,6 +168,17 @@
       e.preventDefault();
       var wahl = link.closest('footer') ? document.querySelector('footer .wahl') : document.querySelector('.daten .wahl');
       wahl.hidden = !wahl.hidden;
+    });
+  });
+  document.querySelectorAll('a.teilen').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      if (!navigator.share) return;
+      e.preventDefault();
+      navigator.share({
+        title: 'Psychotherapeutikum Landeberg',
+        text: 'L. K. Landeberg, Psychotherapeutikum, Grüneburgweg 12, 60322 Frankfurt am Main',
+        url: 'https://psychotherapeutikum.github.io'
+      }).catch(function () {});
     });
   });
 </script>

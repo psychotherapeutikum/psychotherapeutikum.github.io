@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Psychotherapeutikum Landeberg</title>
+<meta name="description" content="Kontakt: Psychotherapeutikum Landeberg, Grüneburgweg 12, 60322 Frankfurt am Main">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<style>
+  :root {
+    --papier: #faf8f4;
+    --text: #1f2a26;
+    --grau: #626a66;
+    --gruen: #2f5d52;
+    --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: #ffffff;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.65;
+    text-align: center;
+    -webkit-font-smoothing: antialiased;
+  }
+  main {
+    max-width: 23rem;
+    min-height: calc(100vh - 44px);
+    margin: 22px auto;
+    padding: 2.5rem 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--papier);
+    border-radius: 3px;
+    box-shadow:
+      2px 4px 14px -6px rgba(84, 72, 50, 0.07),
+      6px 12px 30px -12px rgba(84, 72, 50, 0.06);
+  }
+  @media (max-width: 420px) {
+    main { margin: 22px; min-height: calc(100vh - 44px); }
+  }
+  @media (min-width: 600px) {
+    main { min-height: 0; margin: 7vh auto; padding: 3rem 1.75rem 2rem; }
+  }
+  .bild {
+    display: block;
+    width: 200px;
+    height: auto;
+    margin: 0 auto 2rem;
+    filter:
+      drop-shadow(1px 2px 1px rgba(60, 50, 32, 0.10))
+      drop-shadow(7px 11px 9px rgba(60, 50, 32, 0.16));
+  }
+  .versal {
+    font-family: var(--serif);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin: 0;
+  }
+  h1.versal, .praxis { font-weight: 400; }
+  h1.versal {
+    font-size: 1.16rem;
+    font-weight: 400;
+    letter-spacing: 0.16em;
+    word-spacing: -0.2em;
+    margin-bottom: 0.55rem;
+    padding-left: 0.16em;
+  }
+  h1 .initialen { word-spacing: -0.25em; }
+  .titel {
+    color: var(--grau);
+    font-size: 0.82rem;
+    line-height: 1.7;
+    margin: 0;
+  }
+  .titel span, .daten span { white-space: nowrap; }
+  .strich {
+    width: 36px;
+    height: 1px;
+    background: #d9d2c5;
+    margin: 1.9rem auto;
+  }
+  .praxis {
+    font-size: 0.95rem;
+    letter-spacing: 0.19em;
+    margin-bottom: 0.6rem;
+    padding-left: 0.19em;
+  }
+  .daten { font-size: 0.82rem; line-height: 1.7; }
+  .daten a {
+    display: block;
+    color: var(--grau);
+    text-decoration: none;
+  }
+  .daten a:hover, .daten a:focus-visible { color: var(--gruen); }
+  .daten .abstand { margin-top: 0.5rem; }
+  .speichern {
+    display: block;
+    margin: 2.5rem auto 0;
+    width: 100%;
+    max-width: 16rem;
+    padding: 0.75rem 1rem;
+    border-radius: 999px;
+    background-color: #e6eee9;
+    color: var(--gruen);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .speichern:hover, .speichern:focus-visible { background-color: #dce7e1; }
+  footer {
+    margin-top: 2.6rem;
+    font-size: 0.75rem;
+  }
+  footer a { color: var(--grau); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  @media (max-width: 350px) {
+    body { font-size: 14px; }
+    .titel span, .daten span { white-space: normal; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <img class="bild" src="logo.webp" width="600" height="592" alt="Psychotherapeutikum">
+
+  <h1 class="versal"><span class="initialen">L. K.</span> Landeberg</h1>
+  <p class="titel">
+    <span>Psychologische Psychotherapeutin</span><br>
+    <span>Kinder- &amp; Jugendpsychotherapeutin</span><br>
+    <span>Verkehrspsychologin</span><br>
+    <span>M.Sc. Ingenieurpsychologin</span>
+  </p>
+
+  <div class="strich"></div>
+
+  <p class="versal praxis">Psychotherapeutikum</p>
+  <div class="daten">
+    <a class="route" href="https://www.google.com/maps/dir/?api=1&amp;destination=Gr%C3%BCneburgweg%2012%2C%2060322%20Frankfurt%20am%20Main"><span>Grüneburgweg 12 / 3. OG</span><br><span>60322 Frankfurt am Main</span></a>
+    <a class="abstand" href="tel:+4969247574523">069 247574523</a>
+    <a href="mailto:Kontakt@psychotherapeutikum.net">Kontakt@psychotherapeutikum.net</a>
+  </div>
+
+  <a class="speichern" href="kontakt.vcf" download="Psychotherapeutikum Landeberg.vcf">Kontakt speichern</a>
+
+  <footer>
+    <a class="route" href="https://www.google.com/maps/dir/?api=1&amp;destination=Gr%C3%BCneburgweg%2012%2C%2060322%20Frankfurt%20am%20Main">Route</a> &nbsp;·&nbsp;
+    <a href="https://psychotherapeutikum.net">Website</a> &nbsp;·&nbsp;
+    <a href="https://psychotherapeutikum.net/impressum.html">Impressum</a> &nbsp;·&nbsp;
+    <a href="https://psychotherapeutikum.net/datenschutz.html">Datenschutz</a>
+  </footer>
+</main>
+</body>
+</html>

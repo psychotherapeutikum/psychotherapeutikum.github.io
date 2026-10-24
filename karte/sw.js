@@ -1,4 +1,4 @@
-var CACHE = 'visitenkarte-v5';
+var CACHE = 'visitenkarte-v6';
 var DATEIEN = [
   './', './index.html', './manifest.webmanifest',
   './bilder/hinten.jpg',
@@ -25,7 +25,7 @@ self.addEventListener('activate', function (e) {
 self.addEventListener('fetch', function (e) {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    fetch(e.request).then(function (antwort) {
+    fetch(e.request, { cache: 'no-cache' }).then(function (antwort) {   // immer beim Server nachfragen
       var kopie = antwort.clone();
       caches.open(CACHE).then(function (c) { c.put(e.request, kopie); });
       return antwort;

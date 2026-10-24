@@ -74,55 +74,53 @@
   .hinweis { font-size: 13px; color: var(--leise); text-align: center; line-height: 1.5; max-width: 300px; }
   #loeschen-bereich { position: absolute; bottom: calc(18px + env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; }
 
-  /* ---------- Stapel ---------- */
-  #stapel { flex-direction: column; align-items: center; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  /* ---------- Karten ---------- */
+  #karten { flex-direction: column; align-items: center; }
   .kopf {
     width: min(92vw, 460px); display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 0 10px;
+    padding: 18px 0 6px; transition: opacity 300ms ease;
   }
   .kopf h2 { font-family: var(--serif); font-weight: 400; font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--leise); }
   .kopf .leise-knopf { padding-right: 0; }
-  .stapel-flaeche { position: relative; width: min(92vw, 460px); flex: none; margin-bottom: 24px; }
-  .karte {
-    position: absolute; left: 0; width: 100%; aspect-ratio: var(--verh);
-    border-radius: 12px; overflow: hidden; cursor: pointer;
-    background: var(--papier);
-    box-shadow: 0 -1px 0 rgba(255,255,255,.06), 0 10px 34px rgba(0,0,0,.40);
-    transition: transform 380ms cubic-bezier(.25,.8,.25,1);
+  .buehne {
+    flex: 1; width: 100%; display: flex; align-items: center; justify-content: center;
+    position: relative; touch-action: none;
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
   }
-  .karte:active { transform: translateY(-4px); }
-  .karte img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; -webkit-user-drag: none; }
-  .karte .name {
-    position: absolute; left: 14px; top: 11px; font-size: 13px; letter-spacing: .04em;
-    color: #2b2f2c; background: rgba(239,232,216,.86); padding: 3px 8px; border-radius: 6px;
-  }
-  .karte.leer {
-    background: #252d32; border: 1px dashed rgba(241,236,225,.28); box-shadow: 0 -6px 18px rgba(0,0,0,.25);
-    display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 16px;
-  }
-  .karte.leer .name { position: static; background: none; color: var(--leise); padding: 0; font-size: 14px; }
-  .karte.leer .plus { margin-top: auto; align-self: flex-end; font-size: 13px; color: var(--leise); }
-
-  /* ---------- Groß ---------- */
-  #gross { flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
-  .gross-karte {
-    width: min(92vw, 680px, calc(70vh * 85.6 / 54));
-    width: min(92vw, 680px, calc(70dvh * 85.6 / 54));
+  .kk {
+    width: min(68vw, 400px, calc(42vh * 85.6 / 54));
+    width: min(68vw, 400px, calc(42dvh * 85.6 / 54));
     aspect-ratio: var(--verh); perspective: 1600px; cursor: pointer;
+    transition: width 420ms cubic-bezier(.25,.8,.25,1), transform 320ms cubic-bezier(.25,.8,.25,1), opacity 320ms ease;
   }
+  #karten.gross .kk {
+    width: min(96vw, 820px, calc(84vh * 85.6 / 54));
+    width: min(96vw, 820px, calc(84dvh * 85.6 / 54));
+  }
+  .kk.ohne { transition: none; }
   .dreher { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
     transition: transform 700ms cubic-bezier(.3,.7,.2,1); }
-  .gross-karte.gewendet .dreher { transform: rotateY(180deg); }
+  .kk.gewendet .dreher { transform: rotateY(180deg); }
   .flaeche {
     position: absolute; inset: 0; border-radius: 14px; overflow: hidden; background: var(--papier);
     backface-visibility: hidden; -webkit-backface-visibility: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 18px 60px rgba(0,0,0,.38);
-    display: flex; align-items: center; justify-content: center; color: #6b6f6a; font-size: 14px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+    color: #6b6f6a; font-size: 14px;
   }
   .flaeche img { width: 100%; height: 100%; object-fit: cover; display: block; -webkit-user-drag: none; pointer-events: none; }
   .flaeche.rueck { transform: rotateY(180deg); }
-  .gross-name { font-family: var(--serif); font-size: 17px; letter-spacing: .06em; }
-  .gross-leiste { display: flex; gap: 6px; }
+  .flaeche.leer { background: #252d32; border: 1px dashed rgba(241,236,225,.28); box-shadow: none; color: var(--leise); }
+  .flaeche.leer b { font-weight: 400; font-size: 15px; color: var(--schrift); }
+  .punkte {
+    position: absolute; right: max(10px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%);
+    display: flex; flex-direction: column; gap: 9px; transition: opacity 300ms ease;
+  }
+  .punkte i { width: 6px; height: 6px; border-radius: 50%; background: rgba(241,236,225,.22); transition: background 200ms; }
+  .punkte i.an { background: rgba(241,236,225,.85); }
+  .fuss { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 14px; transition: opacity 300ms ease; }
+  .karten-name { font-family: var(--serif); font-size: 17px; letter-spacing: .06em; min-height: 22px; }
+  #karten.gross .kopf, #karten.gross .fuss, #karten.gross .punkte { opacity: 0; pointer-events: none; }
 
   /* ---------- Bearbeiten ---------- */
   #bearbeiten { flex-direction: column; align-items: center; overflow-y: auto; }
@@ -174,27 +172,24 @@
   </div>
 </section>
 
-<!-- Stapel -->
-<section class="ansicht" id="stapel">
+<!-- Karten -->
+<section class="ansicht" id="karten">
   <div class="kopf">
     <h2>Ausweise</h2>
     <button class="leise-knopf" id="sperren" type="button">Sperren</button>
   </div>
-  <div class="stapel-flaeche" id="stapel-flaeche"></div>
-</section>
-
-<!-- Groß -->
-<section class="ansicht" id="gross">
-  <div class="gross-karte" id="gross-karte" role="button" aria-label="Karte wenden">
-    <div class="dreher">
-      <div class="flaeche vorder" id="gross-vorne"></div>
-      <div class="flaeche rueck" id="gross-hinten"></div>
+  <div class="buehne" id="buehne">
+    <div class="kk" id="kk" role="button" aria-label="Karte">
+      <div class="dreher">
+        <div class="flaeche vorder" id="kk-vorne"></div>
+        <div class="flaeche rueck" id="kk-hinten"></div>
+      </div>
     </div>
+    <div class="punkte" id="punkte"></div>
   </div>
-  <div class="gross-name" id="gross-name"></div>
-  <div class="gross-leiste">
-    <button class="leise-knopf" id="gross-aendern" type="button">Ändern</button>
-    <button class="leise-knopf" id="gross-zurueck" type="button">Zurück</button>
+  <div class="fuss">
+    <div class="karten-name" id="karten-name"></div>
+    <button class="leise-knopf" id="aendern" type="button">Ändern</button>
   </div>
 </section>
 
@@ -235,7 +230,7 @@
 
   var schluessel = null;     // nur im Arbeitsspeicher, solange entsperrt
   var karten = [];           // entschlüsselte Karten, nur solange entsperrt
-  var aktiv = -1;            // geöffnete Karte
+  var aktiv = 0;             // Karte im Blick
   var entwurf = null;        // Karte im Bearbeiten
 
   // ---------- Ablage (IndexedDB, nur auf diesem Gerät) ----------
@@ -299,7 +294,7 @@
 
   // ---------- Ansichten ----------
   function zeige(id) {
-    ['sperre', 'stapel', 'gross', 'bearbeiten'].forEach(function (a) { $(a).classList.toggle('an', a === id); });
+    ['sperre', 'karten', 'bearbeiten'].forEach(function (a) { $(a).classList.toggle('an', a === id); });
   }
   function warte(an) { $('warte').classList.toggle('an', !!an); }
 
@@ -315,9 +310,9 @@
   }
 
   function sperren() {
-    schluessel = null; karten = []; aktiv = -1; entwurf = null;
-    $('stapel-flaeche').innerHTML = '';
-    $('gross-vorne').innerHTML = ''; $('gross-hinten').innerHTML = '';
+    schluessel = null; karten = []; entwurf = null;
+    $('kk-vorne').innerHTML = ''; $('kk-hinten').innerHTML = ''; $('karten-name').textContent = '';
+    $('karten').classList.remove('gross');
     $('b-vorne-datei').value = ''; $('b-hinten-datei').value = '';
     wahlZeigen('b-vorne', ''); wahlZeigen('b-hinten', ''); $('b-name').value = '';
     sperrbildschirm();
@@ -368,59 +363,104 @@
     }
     return Promise.all(aufgaben).then(function (liste) {
       karten = liste.map(function (k, i) { return k || { name: VORGABE[i], vorne: '', hinten: '' }; });
-      stapelZeichnen();
-      zeige('stapel');
+      anzeigen(0);
     });
   }
 
-  // ---------- Stapel ----------
-  function stapelZeichnen() {
-    var flaeche = $('stapel-flaeche');
-    flaeche.innerHTML = '';
-    var breite = flaeche.clientWidth || Math.min(window.innerWidth * 0.92, 460);
-    var hoehe = breite * 54 / 85.6;
-    var platz = window.innerHeight - 110;
-    var schritt = Math.max(46, Math.min(hoehe * 0.42, (platz - hoehe - 20) / (PLAETZE - 1)));
-    flaeche.style.height = Math.ceil((PLAETZE - 1) * schritt + hoehe) + 'px';
-    karten.forEach(function (k, i) {
-      var el = document.createElement('div');
-      var leer = !k.vorne;
-      el.className = 'karte' + (leer ? ' leer' : '');
-      el.style.top = (i * schritt) + 'px';
-      el.style.zIndex = String(i + 1);
-      if (leer) {
-        el.innerHTML = '<span class="name"></span><span class="plus">Karte hinzufügen</span>';
-        el.querySelector('.name').textContent = k.name || 'Freier Platz';
-      } else {
-        var img = document.createElement('img'); img.src = k.vorne; img.alt = '';
-        el.appendChild(img);
-        var n = document.createElement('span'); n.className = 'name'; n.textContent = k.name || 'Karte';
-        el.appendChild(n);
-      }
-      el.addEventListener('click', function () { leer ? bearbeiten(i) : gross(i); });
-      flaeche.appendChild(el);
-    });
-  }
+  // ---------- Karten: eine Karte im Blick, wischen blättert ----------
+  function istLeer(i) { return !karten[i] || !karten[i].vorne; }
 
-  // ---------- Groß ansehen und wenden ----------
-  function flaecheFuellen(el, src, ersatz) {
+  function flaecheFuellen(el, src, leerText) {
     el.innerHTML = '';
+    el.classList.toggle('leer', !src);
     if (src) { var img = document.createElement('img'); img.src = src; img.alt = ''; el.appendChild(img); }
-    else { el.textContent = ersatz; }
+    else { el.innerHTML = leerText; }
   }
-  function gross(i) {
-    aktiv = i;
-    var k = karten[i];
-    $('gross-karte').classList.remove('gewendet');
-    flaecheFuellen($('gross-vorne'), k.vorne, 'Keine Vorderseite');
-    flaecheFuellen($('gross-hinten'), k.hinten, 'Keine Rückseite');
-    $('gross-name').textContent = k.name || '';
-    zeige('gross');
+
+  function karteZeichnen() {
+    var k = karten[aktiv];
+    $('kk').classList.add('ohne'); $('kk').classList.remove('gewendet');
+    void $('kk').offsetWidth; $('kk').classList.remove('ohne');
+    if (istLeer(aktiv)) {
+      flaecheFuellen($('kk-vorne'), '', '<b></b><span>Karte hinzufügen</span>');
+      $('kk-vorne').querySelector('b').textContent = k.name || 'Freier Platz';
+    } else {
+      flaecheFuellen($('kk-vorne'), k.vorne, '');
+    }
+    flaecheFuellen($('kk-hinten'), k.hinten, '<span>Keine Rückseite</span>');
+    $('karten-name').textContent = istLeer(aktiv) ? '' : (k.name || '');
+    $('aendern').hidden = istLeer(aktiv);
+    var pk = $('punkte').children;
+    for (var i = 0; i < pk.length; i++) pk[i].classList.toggle('an', i === aktiv);
   }
-  $('gross-karte').addEventListener('click', function () { $('gross-karte').classList.toggle('gewendet'); });
-  $('gross-zurueck').addEventListener('click', function () { aktiv = -1; zeige('stapel'); });
-  $('gross-aendern').addEventListener('click', function () { bearbeiten(aktiv); });
-  $('gross').addEventListener('click', function (e) { if (e.target === $('gross')) { aktiv = -1; zeige('stapel'); } });
+
+  function anzeigen(i) {
+    aktiv = Math.max(0, Math.min(PLAETZE - 1, i || 0));
+    $('punkte').innerHTML = '';
+    for (var j = 0; j < PLAETZE; j++) $('punkte').appendChild(document.createElement('i'));
+    $('karten').classList.remove('gross');
+    karteZeichnen();
+    zeige('karten');
+  }
+
+  var blaettertGerade = false;
+  function blaettern(richtung) {
+    var neu = aktiv + richtung;
+    if (neu < 0 || neu >= PLAETZE || blaettertGerade) {
+      var kk = $('kk'); kk.style.transform = 'translateY(' + (-richtung * 14) + 'px)';
+      setTimeout(function () { kk.style.transform = ''; }, 160);
+      return;
+    }
+    blaettertGerade = true;
+    var kk = $('kk');
+    kk.style.transform = 'translateY(' + (-richtung * 70) + '%)'; kk.style.opacity = '0';
+    setTimeout(function () {
+      aktiv = neu; karteZeichnen();
+      kk.classList.add('ohne');
+      kk.style.transform = 'translateY(' + (richtung * 70) + '%)';
+      void kk.offsetWidth; kk.classList.remove('ohne');
+      kk.style.transform = ''; kk.style.opacity = '';
+      setTimeout(function () { blaettertGerade = false; }, 320);
+    }, 300);
+  }
+
+  // Tippen dreht, Doppeltippen macht groß oder klein, Wischen blättert
+  var start = null, tippZeit = 0, tippWarte = null;
+  $('buehne').addEventListener('pointerdown', function (e) {
+    start = { x: e.clientX, y: e.clientY, t: Date.now(), aufKarte: $('kk').contains(e.target) };
+  });
+  $('buehne').addEventListener('pointerup', function (e) {
+    if (!start) return;
+    var dx = e.clientX - start.x, dy = e.clientY - start.y, aufKarte = start.aufKarte;
+    start = null;
+    if (Math.abs(dy) > 40 && Math.abs(dy) > Math.abs(dx)) {
+      clearTimeout(tippWarte); tippWarte = null;
+      blaettern(dy < 0 ? 1 : -1);
+      return;
+    }
+    if (Math.abs(dx) > 12 || Math.abs(dy) > 12 || !aufKarte) return;
+    var jetzt = Date.now();
+    if (tippWarte && jetzt - tippZeit < 300) {
+      clearTimeout(tippWarte); tippWarte = null;
+      if (!istLeer(aktiv)) $('karten').classList.toggle('gross');
+      return;
+    }
+    tippZeit = jetzt;
+    tippWarte = setTimeout(function () {
+      tippWarte = null;
+      if (istLeer(aktiv)) bearbeiten(aktiv); else $('kk').classList.toggle('gewendet');
+    }, 300);
+  });
+  $('buehne').addEventListener('pointercancel', function () { start = null; });
+  $('aendern').addEventListener('click', function () { bearbeiten(aktiv); });
+  document.addEventListener('keydown', function (e) {
+    if (!$('karten').classList.contains('an')) return;
+    if (e.key === 'ArrowDown') blaettern(1);
+    if (e.key === 'ArrowUp') blaettern(-1);
+    if (e.key === ' ') { e.preventDefault(); if (!istLeer(aktiv)) $('kk').classList.toggle('gewendet'); }
+    if (e.key === 'Enter' && !istLeer(aktiv)) $('karten').classList.toggle('gross');
+    if (e.key === 'Escape') $('karten').classList.remove('gross');
+  });
 
   // ---------- Bearbeiten ----------
   function wahlZeigen(id, src) {
@@ -474,7 +514,7 @@
 
   $('b-abbrechen').addEventListener('click', function () {
     var i = entwurf ? entwurf.platz : -1; entwurf = null;
-    if (i >= 0 && karten[i].vorne) gross(i); else zeige('stapel');
+    anzeigen(i >= 0 ? i : aktiv);
   });
   $('b-speichern').addEventListener('click', function () {
     if (!entwurf) return;
@@ -484,8 +524,7 @@
     verschluesseln(k).then(function (rec) {
       rec.id = 'karte-' + i; return schreiben(rec);
     }).then(function () {
-      karten[i] = k; entwurf = null; stapelZeichnen();
-      if (k.vorne) gross(i); else zeige('stapel');
+      karten[i] = k; entwurf = null; anzeigen(i);
     }).catch(function () {}).then(function () { warte(false); });
   });
   $('b-leeren').addEventListener('click', function () {
@@ -494,7 +533,7 @@
     var i = entwurf.platz;
     entfernen('karte-' + i).then(function () {
       karten[i] = { name: VORGABE[i], vorne: '', hinten: '' }; entwurf = null;
-      stapelZeichnen(); zeige('stapel');
+      anzeigen(i);
     });
   });
 
@@ -502,7 +541,6 @@
   $('sperren').addEventListener('click', sperren);
   document.addEventListener('visibilitychange', function () { if (document.hidden && schluessel) sperren(); });
   window.addEventListener('pagehide', function () { if (schluessel) sperren(); });
-  window.addEventListener('resize', function () { if (schluessel) stapelZeichnen(); });
 
   $('alles-loeschen').addEventListener('click', function () {
     var b = $('alles-loeschen');

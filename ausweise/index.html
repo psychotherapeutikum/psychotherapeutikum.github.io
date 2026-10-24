@@ -6,7 +6,7 @@
 <title>Ausweise</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="referrer" content="no-referrer">
-<meta name="theme-color" content="#1e2529">
+<meta name="theme-color" content="#121925">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Ausweise">
@@ -16,12 +16,14 @@
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <style>
   :root {
-    --grund: #1e2529;
-    --grund-hell: #273035;
+    --grund: #121925;
+    --grund-hell: #1e2a3c;
     --papier: #efe8d8;
     --schrift: #f1ece1;
-    --leise: #a9aea9;
-    --linie: rgba(241, 236, 225, .18);
+    --leise: #a3a9b3;
+    --gold: #c9a45a;
+    --gold-hell: #e4cc8f;
+    --linie: rgba(241, 236, 225, .16);
     --fehler: #e2a49a;
     --serif: "Iowan Old Style", "Palatino", "Palatino Linotype", Georgia, serif;
     --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
@@ -74,7 +76,8 @@
   input.feld:focus { border-color: rgba(241,236,225,.45); }
   .haupt-knopf {
     font-size: 17px; padding: 13px 14px; border-radius: 10px;
-    background: var(--papier); color: #1e2529; font-weight: 500;
+    background: var(--papier); color: #121925; font-weight: 500;
+    box-shadow: inset 0 0 0 1px rgba(201,164,90,.65);
   }
   .haupt-knopf:disabled { opacity: .5; }
   .meldung { min-height: 20px; font-size: 14px; color: var(--fehler); text-align: center; }
@@ -85,10 +88,17 @@
   #karten { flex-direction: column; align-items: center; }
   .kopf {
     width: min(92vw, 460px); display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 0 6px; transition: opacity 300ms ease;
+    padding: 16px 0 12px; transition: opacity 300ms ease;
   }
-  .kopf h2 { font-family: var(--serif); font-weight: 400; font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--leise); }
-  .kopf .leise-knopf { padding-right: 0; }
+  .kopf { position: relative; }
+  .kopf::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(201,164,90,.55) 20%, rgba(228,204,143,.75) 50%, rgba(201,164,90,.55) 80%, transparent);
+  }
+  .marke { display: flex; align-items: center; gap: 12px; }
+  .marke img { width: 30px; height: auto; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
+  .marke span { font-family: var(--serif); font-size: 14px; letter-spacing: .26em; color: var(--gold-hell); }
+  .kopf .leise-knopf { padding-right: 0; color: var(--gold-hell); opacity: .85; }
   .buehne {
     flex: 1; width: 100%; display: flex; align-items: center; justify-content: center;
     position: relative; touch-action: none;
@@ -117,16 +127,32 @@
   }
   .flaeche img { width: 100%; height: 100%; object-fit: cover; display: block; -webkit-user-drag: none; pointer-events: none; }
   .flaeche.rueck { transform: rotateY(180deg); }
-  .flaeche.leer { background: #252d32; border: 1px dashed rgba(241,236,225,.28); box-shadow: none; color: var(--leise); }
-  .flaeche.leer b { font-weight: 400; font-size: 15px; color: var(--schrift); }
+  .flaeche.leer {
+    background: url(icons/papier.jpg) center / cover, var(--papier);
+    color: #7b7a72; box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 18px 60px rgba(0,0,0,.30);
+    opacity: .9;
+  }
+  .flaeche.leer::before {
+    content: ""; position: absolute; inset: 9px; border: 1px solid rgba(201,164,90,.55); border-radius: 8px; pointer-events: none;
+  }
+  .flaeche.leer::after {
+    content: ""; position: absolute; inset: 22% 38%; background: url(icons/wappen-klein.png) center / contain no-repeat;
+    opacity: .10; filter: grayscale(1); pointer-events: none;
+  }
+  .flaeche.leer b { font-family: var(--serif); font-weight: 400; font-size: 17px; letter-spacing: .04em; color: #2e3340; position: relative; z-index: 1; }
+  .flaeche.leer span { position: relative; z-index: 1; font-size: 13px; letter-spacing: .03em; }
   .punkte {
     position: absolute; right: max(10px, env(safe-area-inset-right)); top: 50%; transform: translateY(-50%);
     display: flex; flex-direction: column; gap: 9px; transition: opacity 300ms ease;
   }
   .punkte i { width: 6px; height: 6px; border-radius: 50%; background: rgba(241,236,225,.22); transition: background 200ms; }
-  .punkte i.an { background: rgba(241,236,225,.85); }
+  .punkte i.an { background: var(--gold-hell); box-shadow: 0 0 6px rgba(228,204,143,.45); }
   .fuss { display: flex; flex-direction: column; align-items: center; gap: 2px; padding-bottom: 14px; transition: opacity 300ms ease; }
-  .karten-name { font-family: var(--serif); font-size: 17px; letter-spacing: .06em; min-height: 22px; }
+  .karten-name { font-family: var(--serif); font-size: 18px; letter-spacing: .08em; min-height: 24px; }
+  .karten-name:not(:empty)::before {
+    content: ""; display: block; width: 34px; height: 1px; margin: 0 auto 10px; background: var(--gold);
+  }
+  .fuss .leise-knopf { color: var(--gold-hell); opacity: .8; }
   #karten.gross .kopf, #karten.gross .fuss, #karten.gross .punkte { opacity: 0; pointer-events: none; }
   #karten.gross .buehne { position: fixed; inset: 0; z-index: 2; }
 
@@ -149,12 +175,14 @@
   /* ---------- Bearbeiten ---------- */
   #bearbeiten { flex-direction: column; align-items: center; overflow-y: auto; }
   .blatt { width: min(92vw, 460px); padding: 18px 0 40px; display: flex; flex-direction: column; gap: 16px; }
-  .blatt h3 { font-family: var(--serif); font-weight: 400; font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--leise); text-align: center; }
+  .blatt h3 { font-family: var(--serif); font-weight: 400; font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-hell); text-align: center; padding-bottom: 12px; position: relative; }
+  .blatt h3::after { content: ""; position: absolute; left: 35%; right: 35%; bottom: 0; height: 1px; background: var(--gold); opacity: .7; }
   .feld-titel { font-size: 13px; color: var(--leise); margin-bottom: 6px; }
   .bild-wahl {
     width: 100%; aspect-ratio: var(--verh); border-radius: 12px; overflow: hidden; position: relative;
     border: 1px dashed rgba(241,236,225,.28); display: flex; align-items: center; justify-content: center;
     color: var(--leise); font-size: 14px; cursor: pointer; background: rgba(255,255,255,.03);
+    border-color: rgba(201,164,90,.45);
   }
   .bild-wahl.voll { border: 0; background: var(--papier); }
   .bild-wahl img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -204,7 +232,7 @@
 <!-- Karten -->
 <section class="ansicht" id="karten">
   <div class="kopf">
-    <h2>Ausweise</h2>
+    <div class="marke"><img src="icons/wappen-klein.png" alt=""><span>L.&#8239;K. LANDEBERG</span></div>
     <span>
       <button class="leise-knopf" id="faceid-einrichten" type="button" hidden>Face ID einrichten</button>
       <button class="leise-knopf" id="sperren" type="button">Sperren</button>

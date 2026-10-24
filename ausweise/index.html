@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ausweise</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="theme-color" content="#1e2529">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Ausweise">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
+<style>
+  :root {
+    --grund: #1e2529;
+    --grund-hell: #273035;
+    --papier: #efe8d8;
+    --schrift: #f1ece1;
+    --leise: #a9aea9;
+    --linie: rgba(241, 236, 225, .18);
+    --fehler: #e2a49a;
+    --serif: "Iowan Old Style", "Palatino", "Palatino Linotype", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+    --verh: 85.6 / 54;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(120% 90% at 50% 30%, var(--grund-hell) 0%, var(--grund) 70%);
+    background-color: var(--grund);
+    color: var(--schrift);
+    font-family: var(--sans);
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+    hyphens: none;
+    -webkit-hyphens: none;
+    touch-action: manipulation;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+  .ansicht { position: fixed; inset: 0; padding: inherit; display: none; }
+  .ansicht.an { display: flex; }
+  .leise-knopf {
+    font-size: 15px; color: var(--leise); padding: 10px 14px; letter-spacing: .02em;
+  }
+  .leise-knopf:active { opacity: .6; }
+
+  /* ---------- Sperre ---------- */
+  #sperre { flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 24px; }
+  #sperre img.wappen { width: 92px; height: auto; opacity: .92; filter: drop-shadow(0 6px 18px rgba(0,0,0,.35)); }
+  #sperre h1 { font-family: var(--serif); font-weight: 400; font-size: 26px; letter-spacing: .14em; text-transform: uppercase; }
+  form.zugang { width: min(320px, 86vw); display: flex; flex-direction: column; gap: 12px; }
+  .unsichtbar { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  input.feld {
+    width: 100%; font: inherit; font-size: 17px; color: var(--schrift);
+    background: rgba(255,255,255,.06); border: 1px solid var(--linie); border-radius: 10px;
+    padding: 13px 14px; outline: none;
+  }
+  input.feld:focus { border-color: rgba(241,236,225,.45); }
+  .haupt-knopf {
+    font-size: 17px; padding: 13px 14px; border-radius: 10px;
+    background: var(--papier); color: #1e2529; font-weight: 500;
+  }
+  .haupt-knopf:disabled { opacity: .5; }
+  .meldung { min-height: 20px; font-size: 14px; color: var(--fehler); text-align: center; }
+  .hinweis { font-size: 13px; color: var(--leise); text-align: center; line-height: 1.5; max-width: 300px; }
+  #loeschen-bereich { position: absolute; bottom: calc(18px + env(safe-area-inset-bottom)); left: 0; right: 0; text-align: center; }
+
+  /* ---------- Stapel ---------- */
+  #stapel { flex-direction: column; align-items: center; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .kopf {
+    width: min(92vw, 460px); display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 0 10px;
+  }
+  .kopf h2 { font-family: var(--serif); font-weight: 400; font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--leise); }
+  .kopf .leise-knopf { padding-right: 0; }
+  .stapel-flaeche { position: relative; width: min(92vw, 460px); flex: none; margin-bottom: 24px; }
+  .karte {
+    position: absolute; left: 0; width: 100%; aspect-ratio: var(--verh);
+    border-radius: 12px; overflow: hidden; cursor: pointer;
+    background: var(--papier);
+    box-shadow: 0 -1px 0 rgba(255,255,255,.06), 0 10px 34px rgba(0,0,0,.40);
+    transition: transform 380ms cubic-bezier(.25,.8,.25,1);
+  }
+  .karte:active { transform: translateY(-4px); }
+  .karte img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; -webkit-user-drag: none; }
+  .karte .name {
+    position: absolute; left: 14px; top: 11px; font-size: 13px; letter-spacing: .04em;
+    color: #2b2f2c; background: rgba(239,232,216,.86); padding: 3px 8px; border-radius: 6px;
+  }
+  .karte.leer {
+    background: #252d32; border: 1px dashed rgba(241,236,225,.28); box-shadow: 0 -6px 18px rgba(0,0,0,.25);
+    display: flex; flex-direction: column; justify-content: flex-start; padding: 14px 16px;
+  }
+  .karte.leer .name { position: static; background: none; color: var(--leise); padding: 0; font-size: 14px; }
+  .karte.leer .plus { margin-top: auto; align-self: flex-end; font-size: 13px; color: var(--leise); }
+
+  /* ---------- Groß ---------- */
+  #gross { flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
+  .gross-karte {
+    width: min(92vw, 680px, calc(70vh * 85.6 / 54));
+    width: min(92vw, 680px, calc(70dvh * 85.6 / 54));
+    aspect-ratio: var(--verh); perspective: 1600px; cursor: pointer;
+  }
+  .dreher { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
+    transition: transform 700ms cubic-bezier(.3,.7,.2,1); }
+  .gross-karte.gewendet .dreher { transform: rotateY(180deg); }
+  .flaeche {
+    position: absolute; inset: 0; border-radius: 14px; overflow: hidden; background: var(--papier);
+    backface-visibility: hidden; -webkit-backface-visibility: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,.12), 0 18px 60px rgba(0,0,0,.38);
+    display: flex; align-items: center; justify-content: center; color: #6b6f6a; font-size: 14px;
+  }
+  .flaeche img { width: 100%; height: 100%; object-fit: cover; display: block; -webkit-user-drag: none; pointer-events: none; }
+  .flaeche.rueck { transform: rotateY(180deg); }
+  .gross-name { font-family: var(--serif); font-size: 17px; letter-spacing: .06em; }
+  .gross-leiste { display: flex; gap: 6px; }
+
+  /* ---------- Bearbeiten ---------- */
+  #bearbeiten { flex-direction: column; align-items: center; overflow-y: auto; }
+  .blatt { width: min(92vw, 460px); padding: 18px 0 40px; display: flex; flex-direction: column; gap: 16px; }
+  .blatt h3 { font-family: var(--serif); font-weight: 400; font-size: 15px; letter-spacing: .22em; text-transform: uppercase; color: var(--leise); text-align: center; }
+  .feld-titel { font-size: 13px; color: var(--leise); margin-bottom: 6px; }
+  .bild-wahl {
+    width: 100%; aspect-ratio: var(--verh); border-radius: 12px; overflow: hidden; position: relative;
+    border: 1px dashed rgba(241,236,225,.28); display: flex; align-items: center; justify-content: center;
+    color: var(--leise); font-size: 14px; cursor: pointer; background: rgba(255,255,255,.03);
+  }
+  .bild-wahl.voll { border: 0; background: var(--papier); }
+  .bild-wahl img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .bild-wahl input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .zeile { display: flex; gap: 10px; }
+  .zeile > * { flex: 1; }
+  .zweit-knopf { font-size: 17px; padding: 13px 14px; border-radius: 10px; border: 1px solid var(--linie); }
+  .gefahr { color: var(--fehler); font-size: 15px; padding: 10px; }
+
+  .warte { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(20,25,28,.55); font-size: 15px; color: var(--leise); }
+  .warte.an { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- Sperre / Einrichten -->
+<section class="ansicht" id="sperre">
+  <img class="wappen" src="icons/wappen.png" alt="">
+  <h1>Ausweise</h1>
+
+  <form class="zugang" id="form-oeffnen" autocomplete="on">
+    <input class="unsichtbar" type="text" name="username" autocomplete="username" value="Ausweise" tabindex="-1" aria-hidden="true">
+    <input class="feld" type="password" id="pw" name="password" autocomplete="current-password" placeholder="Passwort" required>
+    <button class="haupt-knopf" type="submit">Öffnen</button>
+    <div class="meldung" id="meldung-oeffnen"></div>
+  </form>
+
+  <form class="zugang" id="form-einrichten" autocomplete="on" hidden>
+    <input class="unsichtbar" type="text" name="username" autocomplete="username" value="Ausweise" tabindex="-1" aria-hidden="true">
+    <input class="feld" type="password" id="pw-neu" name="new-password" autocomplete="new-password" placeholder="Neues Passwort" required minlength="10">
+    <input class="feld" type="password" id="pw-neu2" autocomplete="new-password" placeholder="Passwort wiederholen" required minlength="10">
+    <button class="haupt-knopf" type="submit">Passwort festlegen</button>
+    <div class="meldung" id="meldung-einrichten"></div>
+    <p class="hinweis">Mindestens 10 Zeichen. Ohne dieses Passwort lassen sich die Karten nicht mehr öffnen.</p>
+  </form>
+
+  <div id="loeschen-bereich" hidden>
+    <button class="leise-knopf" id="alles-loeschen" type="button">Alle Karten löschen</button>
+  </div>
+</section>
+
+<!-- Stapel -->
+<section class="ansicht" id="stapel">
+  <div class="kopf">
+    <h2>Ausweise</h2>
+    <button class="leise-knopf" id="sperren" type="button">Sperren</button>
+  </div>
+  <div class="stapel-flaeche" id="stapel-flaeche"></div>
+</section>
+
+<!-- Groß -->
+<section class="ansicht" id="gross">
+  <div class="gross-karte" id="gross-karte" role="button" aria-label="Karte wenden">
+    <div class="dreher">
+      <div class="flaeche vorder" id="gross-vorne"></div>
+      <div class="flaeche rueck" id="gross-hinten"></div>
+    </div>
+  </div>
+  <div class="gross-name" id="gross-name"></div>
+  <div class="gross-leiste">
+    <button class="leise-knopf" id="gross-aendern" type="button">Ändern</button>
+    <button class="leise-knopf" id="gross-zurueck" type="button">Zurück</button>
+  </div>
+</section>
+
+<!-- Bearbeiten -->
+<section class="ansicht" id="bearbeiten">
+  <div class="blatt">
+    <h3 id="blatt-titel">Karte</h3>
+    <div>
+      <div class="feld-titel">Bezeichnung</div>
+      <input class="feld" type="text" id="b-name" maxlength="40" autocomplete="off" autocapitalize="words">
+    </div>
+    <div>
+      <div class="feld-titel">Vorderseite</div>
+      <label class="bild-wahl" id="b-vorne"><span>Foto wählen</span><input type="file" accept="image/*" id="b-vorne-datei"></label>
+    </div>
+    <div>
+      <div class="feld-titel">Rückseite</div>
+      <label class="bild-wahl" id="b-hinten"><span>Foto wählen</span><input type="file" accept="image/*" id="b-hinten-datei"></label>
+    </div>
+    <div class="zeile">
+      <button class="zweit-knopf" id="b-abbrechen" type="button">Abbrechen</button>
+      <button class="haupt-knopf" id="b-speichern" type="button">Speichern</button>
+    </div>
+    <button class="gefahr" id="b-leeren" type="button" hidden>Karte entfernen</button>
+  </div>
+</section>
+
+<div class="warte" id="warte">Einen Moment …</div>
+
+<script>
+(function () {
+  'use strict';
+  var PLAETZE = 4;
+  var VORGABE = ['Personalausweis', 'Schwerbehindertenausweis', '', ''];
+  var ITERATIONEN = 600000;
+  var enc = new TextEncoder(), dec = new TextDecoder();
+  var $ = function (id) { return document.getElementById(id); };
+
+  var schluessel = null;     // nur im Arbeitsspeicher, solange entsperrt
+  var karten = [];           // entschlüsselte Karten, nur solange entsperrt
+  var aktiv = -1;            // geöffnete Karte
+  var entwurf = null;        // Karte im Bearbeiten
+
+  // ---------- Ablage (IndexedDB, nur auf diesem Gerät) ----------
+  function db() {
+    return new Promise(function (ok, fehler) {
+      var r = indexedDB.open('ausweise', 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore('daten', { keyPath: 'id' }); };
+      r.onsuccess = function () { ok(r.result); };
+      r.onerror = function () { fehler(r.error); };
+    });
+  }
+  function lesen(id) {
+    return db().then(function (d) {
+      return new Promise(function (ok, fehler) {
+        var r = d.transaction('daten').objectStore('daten').get(id);
+        r.onsuccess = function () { ok(r.result); }; r.onerror = function () { fehler(r.error); };
+      });
+    });
+  }
+  function schreiben(obj) {
+    return db().then(function (d) {
+      return new Promise(function (ok, fehler) {
+        var t = d.transaction('daten', 'readwrite'); t.objectStore('daten').put(obj);
+        t.oncomplete = function () { ok(); }; t.onerror = function () { fehler(t.error); };
+      });
+    });
+  }
+  function entfernen(id) {
+    return db().then(function (d) {
+      return new Promise(function (ok, fehler) {
+        var t = d.transaction('daten', 'readwrite'); t.objectStore('daten').delete(id);
+        t.oncomplete = function () { ok(); }; t.onerror = function () { fehler(t.error); };
+      });
+    });
+  }
+  function allesEntfernen() {
+    return db().then(function (d) {
+      return new Promise(function (ok, fehler) {
+        var t = d.transaction('daten', 'readwrite'); t.objectStore('daten').clear();
+        t.oncomplete = function () { ok(); }; t.onerror = function () { fehler(t.error); };
+      });
+    });
+  }
+
+  // ---------- Verschlüsselung (AES-GCM, Schlüssel aus dem Passwort) ----------
+  function ableiten(pw, salz, iter) {
+    return crypto.subtle.importKey('raw', enc.encode(pw), 'PBKDF2', false, ['deriveKey']).then(function (basis) {
+      return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salz, iterations: iter, hash: 'SHA-256' },
+        basis, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    });
+  }
+  function verschluesseln(obj) {
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    return crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, schluessel, enc.encode(JSON.stringify(obj)))
+      .then(function (ct) { return { iv: iv, ct: ct }; });
+  }
+  function entschluesseln(rec, k) {
+    return crypto.subtle.decrypt({ name: 'AES-GCM', iv: rec.iv }, k || schluessel, rec.ct)
+      .then(function (pt) { return JSON.parse(dec.decode(pt)); });
+  }
+
+  // ---------- Ansichten ----------
+  function zeige(id) {
+    ['sperre', 'stapel', 'gross', 'bearbeiten'].forEach(function (a) { $(a).classList.toggle('an', a === id); });
+  }
+  function warte(an) { $('warte').classList.toggle('an', !!an); }
+
+  function sperrbildschirm() {
+    return lesen('meta').then(function (meta) {
+      $('form-oeffnen').hidden = !meta;
+      $('form-einrichten').hidden = !!meta;
+      $('loeschen-bereich').hidden = !meta;
+      $('pw').value = ''; $('pw-neu').value = ''; $('pw-neu2').value = '';
+      $('meldung-oeffnen').textContent = ''; $('meldung-einrichten').textContent = '';
+      zeige('sperre');
+    });
+  }
+
+  function sperren() {
+    schluessel = null; karten = []; aktiv = -1; entwurf = null;
+    $('stapel-flaeche').innerHTML = '';
+    $('gross-vorne').innerHTML = ''; $('gross-hinten').innerHTML = '';
+    $('b-vorne-datei').value = ''; $('b-hinten-datei').value = '';
+    wahlZeigen('b-vorne', ''); wahlZeigen('b-hinten', ''); $('b-name').value = '';
+    sperrbildschirm();
+  }
+
+  // ---------- Einrichten und Öffnen ----------
+  $('form-einrichten').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var a = $('pw-neu').value, b = $('pw-neu2').value;
+    if (a.length < 10) { $('meldung-einrichten').textContent = 'Bitte mindestens 10 Zeichen.'; return; }
+    if (a !== b) { $('meldung-einrichten').textContent = 'Die beiden Eingaben stimmen nicht überein.'; return; }
+    warte(true);
+    var salz = crypto.getRandomValues(new Uint8Array(16));
+    ableiten(a, salz, ITERATIONEN).then(function (k) {
+      schluessel = k;
+      return verschluesseln({ pruef: 'ausweise' });
+    }).then(function (pruef) {
+      return schreiben({ id: 'meta', salz: salz, iterationen: ITERATIONEN, pruef: pruef });
+    }).then(function () {
+      if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+      return oeffnen();
+    }).catch(function () {
+      $('meldung-einrichten').textContent = 'Das hat nicht geklappt. Bitte noch einmal versuchen.';
+    }).then(function () { warte(false); });
+  });
+
+  $('form-oeffnen').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var pw = $('pw').value;
+    if (!pw) return;
+    warte(true);
+    lesen('meta').then(function (meta) {
+      return ableiten(pw, meta.salz, meta.iterationen).then(function (k) {
+        return entschluesseln(meta.pruef, k).then(function () { schluessel = k; });
+      });
+    }).then(function () {
+      $('pw').value = '';
+      return oeffnen();
+    }).catch(function () {
+      $('meldung-oeffnen').textContent = 'Das Passwort stimmt nicht.';
+    }).then(function () { warte(false); });
+  });
+
+  function oeffnen() {
+    var aufgaben = [];
+    for (var i = 0; i < PLAETZE; i++) {
+      aufgaben.push(lesen('karte-' + i).then(function (rec) { return rec ? entschluesseln(rec) : null; }));
+    }
+    return Promise.all(aufgaben).then(function (liste) {
+      karten = liste.map(function (k, i) { return k || { name: VORGABE[i], vorne: '', hinten: '' }; });
+      stapelZeichnen();
+      zeige('stapel');
+    });
+  }
+
+  // ---------- Stapel ----------
+  function stapelZeichnen() {
+    var flaeche = $('stapel-flaeche');
+    flaeche.innerHTML = '';
+    var breite = flaeche.clientWidth || Math.min(window.innerWidth * 0.92, 460);
+    var hoehe = breite * 54 / 85.6;
+    var platz = window.innerHeight - 110;
+    var schritt = Math.max(56, Math.min(hoehe * 0.42, (platz - hoehe - 20) / (PLAETZE - 1)));
+    flaeche.style.height = Math.ceil((PLAETZE - 1) * schritt + hoehe) + 'px';
+    karten.forEach(function (k, i) {
+      var el = document.createElement('div');
+      var leer = !k.vorne;
+      el.className = 'karte' + (leer ? ' leer' : '');
+      el.style.top = (i * schritt) + 'px';
+      el.style.zIndex = String(i + 1);
+      if (leer) {
+        el.innerHTML = '<span class="name"></span><span class="plus">Karte hinzufügen</span>';
+        el.querySelector('.name').textContent = k.name || 'Freier Platz';
+      } else {
+        var img = document.createElement('img'); img.src = k.vorne; img.alt = '';
+        el.appendChild(img);
+        var n = document.createElement('span'); n.className = 'name'; n.textContent = k.name || 'Karte';
+        el.appendChild(n);
+      }
+      el.addEventListener('click', function () { leer ? bearbeiten(i) : gross(i); });
+      flaeche.appendChild(el);
+    });
+  }
+
+  // ---------- Groß ansehen und wenden ----------
+  function flaecheFuellen(el, src, ersatz) {
+    el.innerHTML = '';
+    if (src) { var img = document.createElement('img'); img.src = src; img.alt = ''; el.appendChild(img); }
+    else { el.textContent = ersatz; }
+  }
+  function gross(i) {
+    aktiv = i;
+    var k = karten[i];
+    $('gross-karte').classList.remove('gewendet');
+    flaecheFuellen($('gross-vorne'), k.vorne, 'Keine Vorderseite');
+    flaecheFuellen($('gross-hinten'), k.hinten, 'Keine Rückseite');
+    $('gross-name').textContent = k.name || '';
+    zeige('gross');
+  }
+  $('gross-karte').addEventListener('click', function () { $('gross-karte').classList.toggle('gewendet'); });
+  $('gross-zurueck').addEventListener('click', function () { aktiv = -1; zeige('stapel'); });
+  $('gross-aendern').addEventListener('click', function () { bearbeiten(aktiv); });
+  $('gross').addEventListener('click', function (e) { if (e.target === $('gross')) { aktiv = -1; zeige('stapel'); } });
+
+  // ---------- Bearbeiten ----------
+  function wahlZeigen(id, src) {
+    var el = $(id), span = el.querySelector('span'), alt = el.querySelector('img');
+    if (alt) alt.remove();
+    el.classList.toggle('voll', !!src);
+    span.hidden = !!src;
+    if (src) { var img = document.createElement('img'); img.src = src; img.alt = ''; el.insertBefore(img, el.firstChild); }
+  }
+  function bearbeiten(i) {
+    var k = karten[i];
+    entwurf = { platz: i, name: k.name || '', vorne: k.vorne || '', hinten: k.hinten || '' };
+    $('blatt-titel').textContent = k.vorne ? 'Karte ändern' : 'Karte hinzufügen';
+    $('b-name').value = entwurf.name;
+    wahlZeigen('b-vorne', entwurf.vorne);
+    wahlZeigen('b-hinten', entwurf.hinten);
+    $('b-leeren').hidden = !k.vorne;
+    $('b-leeren').textContent = 'Karte entfernen';
+    $('b-leeren').dataset.sicher = '';
+    zeige('bearbeiten');
+  }
+
+  // Foto verkleinern und neu speichern: entfernt dabei auch Ortsangaben und andere Zusatzdaten
+  function fotoLaden(datei) {
+    return new Promise(function (ok, fehler) {
+      var url = URL.createObjectURL(datei), img = new Image();
+      img.onload = function () {
+        var max = 1600, f = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.naturalWidth * f); c.height = Math.round(img.naturalHeight * f);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(url);
+        ok(c.toDataURL('image/jpeg', 0.86));
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); fehler(); };
+      img.src = url;
+    });
+  }
+  function dateiWahl(inputId, feld, anzeige) {
+    $(inputId).addEventListener('change', function () {
+      var d = this.files && this.files[0];
+      if (!d || !entwurf) return;
+      warte(true);
+      fotoLaden(d).then(function (src) { entwurf[feld] = src; wahlZeigen(anzeige, src); })
+        .catch(function () {}).then(function () { warte(false); });
+      this.value = '';
+    });
+  }
+  dateiWahl('b-vorne-datei', 'vorne', 'b-vorne');
+  dateiWahl('b-hinten-datei', 'hinten', 'b-hinten');
+
+  $('b-abbrechen').addEventListener('click', function () {
+    var i = entwurf ? entwurf.platz : -1; entwurf = null;
+    if (i >= 0 && karten[i].vorne) gross(i); else zeige('stapel');
+  });
+  $('b-speichern').addEventListener('click', function () {
+    if (!entwurf) return;
+    var i = entwurf.platz;
+    var k = { name: $('b-name').value.trim(), vorne: entwurf.vorne, hinten: entwurf.hinten };
+    warte(true);
+    verschluesseln(k).then(function (rec) {
+      rec.id = 'karte-' + i; return schreiben(rec);
+    }).then(function () {
+      karten[i] = k; entwurf = null; stapelZeichnen();
+      if (k.vorne) gross(i); else zeige('stapel');
+    }).catch(function () {}).then(function () { warte(false); });
+  });
+  $('b-leeren').addEventListener('click', function () {
+    var b = $('b-leeren');
+    if (!b.dataset.sicher) { b.dataset.sicher = '1'; b.textContent = 'Wirklich entfernen? Noch einmal tippen.'; return; }
+    var i = entwurf.platz;
+    entfernen('karte-' + i).then(function () {
+      karten[i] = { name: VORGABE[i], vorne: '', hinten: '' }; entwurf = null;
+      stapelZeichnen(); zeige('stapel');
+    });
+  });
+
+  // ---------- Sperren ----------
+  $('sperren').addEventListener('click', sperren);
+  document.addEventListener('visibilitychange', function () { if (document.hidden && schluessel) sperren(); });
+  window.addEventListener('pagehide', function () { if (schluessel) sperren(); });
+  window.addEventListener('resize', function () { if (schluessel) stapelZeichnen(); });
+
+  $('alles-loeschen').addEventListener('click', function () {
+    var b = $('alles-loeschen');
+    if (!b.dataset.sicher) { b.dataset.sicher = '1'; b.textContent = 'Alle Karten und das Passwort löschen? Noch einmal tippen.'; return; }
+    allesEntfernen().then(function () { b.dataset.sicher = ''; b.textContent = 'Alle Karten löschen'; sperrbildschirm(); });
+  });
+
+  document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+
+  sperrbildschirm();
+
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+  }
+})();
+</script>
+</body>
+</html>

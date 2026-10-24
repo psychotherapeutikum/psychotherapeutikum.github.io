@@ -14,17 +14,19 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
 <style>
-  :root { --grund: #1e2529; --grund-hell: #273035; }
+  :root {
+    --grund: #1e2529;
+    --grund-hell: #273035;
+    --rand-r: calc(20px + env(safe-area-inset-right));
+    --rand-u: calc(20px + env(safe-area-inset-bottom));
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; }
   body {
     background: radial-gradient(120% 90% at 50% 40%, var(--grund-hell) 0%, var(--grund) 70%);
     background-color: var(--grund);
-    display: grid;
-    place-items: center;
     min-height: 100vh;
     min-height: 100dvh;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
     overflow: hidden;
     -webkit-user-select: none;
     user-select: none;
@@ -32,64 +34,69 @@
     -webkit-touch-callout: none;
     touch-action: manipulation;
   }
-  .buehne {
-    width: min(88vw, 640px, calc(78vh * 85 / 55));
-    width: min(88vw, 640px, calc(78dvh * 85 / 55));
+  .karte {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 160px;
     aspect-ratio: 85 / 55;
     perspective: 1600px;
+    cursor: pointer;
+    outline: none;
+    opacity: 0;
+    transition:
+      left 560ms cubic-bezier(.25, .8, .25, 1),
+      top 560ms cubic-bezier(.25, .8, .25, 1),
+      width 560ms cubic-bezier(.25, .8, .25, 1),
+      opacity 300ms ease;
   }
-  .buehne.auf { animation: aufgehen 700ms cubic-bezier(.2, .8, .2, 1) both; }
-  @keyframes aufgehen {
-    from { transform: scale(.16); opacity: 0; }
-    35%  { opacity: 1; }
-    to   { transform: scale(1); opacity: 1; }
-  }
-  .karte {
+  .karte.da { opacity: 1; }
+  .karte.still { transition: none; }
+  .dreher {
     position: relative;
     width: 100%;
     height: 100%;
-    cursor: pointer;
     transform-style: preserve-3d;
     -webkit-transform-style: preserve-3d;
     transition: transform 750ms cubic-bezier(.3, .7, .2, 1);
-    outline: none;
   }
-  .karte.gewendet { transform: rotateY(180deg); }
+  .karte.gewendet .dreher { transform: rotateY(180deg); }
   .seite {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     display: block;
-    border-radius: 3px;
-    box-shadow: 0 1px 2px rgba(0,0,0,.28), 0 18px 50px rgba(0,0,0,.45);
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.28), 0 10px 30px rgba(0,0,0,.42);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     -webkit-user-drag: none;
     pointer-events: none;
   }
+  .karte.gross .seite { border-radius: 3px; box-shadow: 0 1px 2px rgba(0,0,0,.28), 0 18px 50px rgba(0,0,0,.45); }
   .rueck { transform: rotateY(180deg); }
-  .karte:focus-visible .seite { box-shadow: 0 0 0 2px #8fb3b6, 0 18px 50px rgba(0,0,0,.45); }
+  .vorder { transition: opacity 250ms ease; }
+  .karte:focus-visible .seite { box-shadow: 0 0 0 2px #8fb3b6, 0 10px 30px rgba(0,0,0,.42); }
   @media (prefers-reduced-motion: reduce) {
-    .buehne.auf { animation: none; }
-    .karte { transition: none; }
+    .karte, .dreher { transition: none; }
   }
 </style>
 </head>
 <body>
-  <main class="buehne" id="buehne">
-    <div class="karte" id="karte" role="button" tabindex="0" aria-label="Visitenkarte wenden">
+  <div class="karte" id="karte" role="button" tabindex="0" aria-label="Visitenkarte">
+    <div class="dreher">
       <img class="seite vorder" id="vorne" src="bilder/vorne-1.jpg" alt="Psychotherapeutikum">
       <img class="seite rueck" src="bilder/hinten.jpg" alt="L. K. Landeberg, Psychologische Psychotherapeutin, Kinder- und Jugendpsychotherapeutin, Verkehrspsychologin, M.Sc. Ingenieurpsychologin">
     </div>
-  </main>
+  </div>
 
 <script>
   (function () {
-    var ANZAHL = 8;
-    var buehne = document.getElementById('buehne');
+    var ANZAHL = 8, DOPPEL_MS = 280;
     var karte = document.getElementById('karte');
     var vorne = document.getElementById('vorne');
+    var gross = false, warte = null;
 
     function lesen() { try { return parseInt(localStorage.getItem('vk-letzte'), 10) || 0; } catch (e) { return 0; } }
     function merken(n) { try { localStorage.setItem('vk-letzte', String(n)); } catch (e) {} }
@@ -98,42 +105,90 @@
       var letzte = lesen(), n;
       do { n = 1 + Math.floor(Math.random() * ANZAHL); } while (n === letzte && ANZAHL > 1);
       merken(n);
-      return 'bilder/vorne-' + n + '.jpg';
+      var bild = new Image();
+      bild.onload = bild.onerror = function () { vorne.src = bild.src; };
+      bild.src = 'bilder/vorne-' + n + '.jpg';
     }
 
-    function oeffnen() {
-      karte.style.transition = 'none';
-      karte.classList.remove('gewendet');
-      void karte.offsetWidth;
-      karte.style.transition = '';
-      buehne.classList.remove('auf');
-      var bild = new Image();
-      bild.onload = bild.onerror = function () {
-        vorne.src = bild.src;
-        void buehne.offsetWidth;
-        buehne.classList.add('auf');
+    function masse() {
+      var b = window.innerWidth, h = window.innerHeight;
+      var cs = getComputedStyle(document.documentElement);
+      var rr = parseFloat(cs.getPropertyValue('--rand-r')) || 20;
+      var ru = parseFloat(cs.getPropertyValue('--rand-u')) || 20;
+      var klein = Math.max(110, Math.min(170, b * 0.26));
+      var grossB = Math.min(b * 0.88, 640, h * 0.78 * 85 / 55);
+      return {
+        klein: { w: klein, x: b - rr - klein, y: h - ru - klein * 55 / 85 },
+        gross: { w: grossB, x: (b - grossB) / 2, y: (h - grossB * 55 / 85) / 2 }
       };
-      bild.src = neueVorderseite();
+    }
+
+    function setzen() {
+      var m = masse()[gross ? 'gross' : 'klein'];
+      karte.style.width = m.w + 'px';
+      karte.style.left = m.x + 'px';
+      karte.style.top = m.y + 'px';
+    }
+
+    function vergroessern() {
+      gross = true;
+      karte.classList.add('gross');
+      karte.setAttribute('aria-label', 'Visitenkarte wenden');
+      setzen();
+    }
+
+    function verkleinern() {
+      if (!gross) return;
+      gross = false;
+      karte.classList.remove('gross', 'gewendet');
+      karte.setAttribute('aria-label', 'Visitenkarte vergrößern');
+      setzen();
+      setTimeout(function () { if (!gross) neueVorderseite(); }, 760);
     }
 
     function wenden() { karte.classList.toggle('gewendet'); }
-    karte.addEventListener('click', wenden);
-    karte.addEventListener('keydown', function (e) {
-      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); wenden(); }
+
+    karte.addEventListener('click', function () {
+      if (!gross) { vergroessern(); return; }
+      if (warte) { clearTimeout(warte); warte = null; verkleinern(); return; }
+      warte = setTimeout(function () { warte = null; wenden(); }, DOPPEL_MS);
     });
+    karte.addEventListener('keydown', function (e) {
+      if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); gross ? wenden() : vergroessern(); }
+      if (e.key === 'Escape') { e.preventDefault(); verkleinern(); }
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') verkleinern(); });
     document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
     document.addEventListener('contextmenu', function (e) { e.preventDefault(); });
+    document.addEventListener('dblclick', function (e) { e.preventDefault(); });
+
+    window.addEventListener('resize', function () {
+      karte.classList.add('still'); setzen(); void karte.offsetWidth; karte.classList.remove('still');
+    });
 
     var verborgenSeit = 0;
     document.addEventListener('visibilitychange', function () {
-      if (document.hidden) { verborgenSeit = Date.now(); }
-      else if (verborgenSeit && Date.now() - verborgenSeit > 1500) { oeffnen(); }
+      if (document.hidden) { verborgenSeit = Date.now(); return; }
+      if (verborgenSeit && Date.now() - verborgenSeit > 1500 && gross) {
+        karte.classList.add('still');
+        gross = false;
+        karte.classList.remove('gross', 'gewendet');
+        setzen(); neueVorderseite();
+        void karte.offsetWidth;
+        karte.classList.remove('still');
+      }
     });
 
     for (var i = 1; i <= ANZAHL; i++) { (new Image()).src = 'bilder/vorne-' + i + '.jpg'; }
     (new Image()).src = 'bilder/hinten.jpg';
 
-    oeffnen();
+    neueVorderseite();
+    karte.classList.add('still');
+    karte.setAttribute('aria-label', 'Visitenkarte vergrößern');
+    setzen();
+    void karte.offsetWidth;
+    karte.classList.remove('still');
+    requestAnimationFrame(function () { karte.classList.add('da'); });
 
     if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
       window.addEventListener('load', function () {

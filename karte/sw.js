@@ -1,4 +1,4 @@
-var CACHE = 'visitenkarte-v2';
+var CACHE = 'visitenkarte-v3';
 var DATEIEN = [
   './', './index.html', './manifest.webmanifest',
   './bilder/hinten.jpg',

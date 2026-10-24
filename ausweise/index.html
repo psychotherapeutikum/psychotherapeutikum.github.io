@@ -227,8 +227,8 @@
 <script>
 (function () {
   'use strict';
-  var PLAETZE = 4;
-  var VORGABE = ['Personalausweis', 'Schwerbehindertenausweis', '', ''];
+  var PLAETZE = 8;
+  var VORGABE = ['Personalausweis', 'Schwerbehindertenausweis', '', '', '', '', '', ''];
   var ITERATIONEN = 600000;
   var enc = new TextEncoder(), dec = new TextDecoder();
   var $ = function (id) { return document.getElementById(id); };
@@ -380,7 +380,7 @@
     var breite = flaeche.clientWidth || Math.min(window.innerWidth * 0.92, 460);
     var hoehe = breite * 54 / 85.6;
     var platz = window.innerHeight - 110;
-    var schritt = Math.max(56, Math.min(hoehe * 0.42, (platz - hoehe - 20) / (PLAETZE - 1)));
+    var schritt = Math.max(46, Math.min(hoehe * 0.42, (platz - hoehe - 20) / (PLAETZE - 1)));
     flaeche.style.height = Math.ceil((PLAETZE - 1) * schritt + hoehe) + 'px';
     karten.forEach(function (k, i) {
       var el = document.createElement('div');

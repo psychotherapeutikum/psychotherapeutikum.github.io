@@ -1,5 +1,5 @@
 // Speichert nur die leere App für den Offline-Betrieb, nie Karten oder Fotos
-var CACHE = 'ausweise-v1';
+var CACHE = 'ausweise-v2';
 var DATEIEN = ['./', './index.html', './manifest.webmanifest',
   './icons/icon-32.png', './icons/icon-180.png', './icons/icon-192.png', './icons/icon-512.png', './icons/wappen.png'];
 
